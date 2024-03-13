@@ -3,23 +3,23 @@ use crate::amount::Amount;
 pub mod amount;
 
 #[derive(Debug)]
-pub struct Recipe {
+pub struct Recipe<'a> {
     name: String,
     description: String,
-    ingredients: Vec<(Ingredient, Amount)>,
+    ingredients: Vec<(&'a Ingredient, Amount)>,
     instructions: Vec<String>,
-    tags: Vec<Tag>
+    tags: Vec<Tag>,
 }
 
 #[derive(Debug)]
 pub struct Ingredient {
-    name:String,
-    alcohol_content:f32,
-    tags:Vec<Tag>,
+    name: String,
+    alcohol_content: f32,
+    tags: Vec<Tag>,
 }
 
 #[derive(PartialEq, Debug)]
-pub enum Tag{
+pub enum Tag {
     Defined(String),
     Custom(String),
     Auto(AutoTag),
@@ -36,12 +36,12 @@ impl Ingredient {
         Self {
             name,
             alcohol_content: 0f32,
-            tags:Vec::new(),
+            tags: Vec::new(),
         }
     }
 
-    pub fn with_alcohol(name: String, alcohol_content: f32) -> Self{
-        Self{
+    pub fn with_alcohol(name: String, alcohol_content: f32) -> Self {
+        Self {
             name,
             alcohol_content,
             tags: vec![Tag::Auto(AutoTag::Alcoholic)],
@@ -56,7 +56,7 @@ impl Ingredient {
         }
     }
 
-    pub fn with_alcohol_and_tags(name: String, alcohol_content: f32, mut tags: Vec<Tag>)-> Self{
+    pub fn with_alcohol_and_tags(name: String, alcohol_content: f32, mut tags: Vec<Tag>) -> Self {
         tags.push(Tag::Auto(AutoTag::Alcoholic));
         Self {
             name,
@@ -66,23 +66,23 @@ impl Ingredient {
     }
 }
 
-fn auto_tags_for(ingredients: &[(Ingredient, Amount)]) -> Vec<Tag> {
-    if ingredients.iter().any(|e|e.0.tags.contains(&Tag::Auto(AutoTag::Alcoholic))) {
+fn auto_tags_for(ingredients: &[(&Ingredient, Amount)]) -> Vec<Tag> {
+    if ingredients.iter().any(|e| e.0.tags.contains(&Tag::Auto(AutoTag::Alcoholic))) {
         vec![Tag::Auto(AutoTag::Alcoholic)]
     } else {
         Vec::new()
     }
 }
 
-impl Recipe {
-    pub fn new(name: String, ingredients: Vec<(Ingredient, Amount)>) -> Self {
+impl<'a> Recipe<'a> {
+    pub fn new(name: String,  ingredients: Vec<(&'a Ingredient, Amount)>) -> Self {
         let tags = auto_tags_for(&ingredients);
         Self {
             name,
             description: String::new(),
             ingredients,
             instructions: Vec::new(),
-            tags
+            tags,
         }
     }
 }

@@ -1,13 +1,14 @@
 use std::fmt::{Display, Formatter};
 use std::ops::Add;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Amount {
     pub value: Range<f32>,
     pub unit: MeasurementUnit,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum MeasurementUnit {
     None,
     Mass,
@@ -15,7 +16,7 @@ pub enum MeasurementUnit {
     Other(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Range<T> {
     lower: T,
     upper: T,

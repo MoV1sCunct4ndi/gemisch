@@ -1,8 +1,47 @@
+use std::ops::Deref;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use crate::amount::Amount;
 
 pub mod amount;
 
+#[cfg_attr(doc, aquamarine::aquamarine)]
+/// text
+/// ```mermaid
+/// classDiagram
+/// class Recipe {
+///     -name: String
+///     -description: String
+///     -instructions: Vec~String~
+/// }
+/// Recipe --o TODO
+/// TODO --o Ingredient
+/// TODO --o Amount
+/// class Amount {
+///     -value: f32
+/// }
+/// Amount --o MeasurementUnit
+/// class MeasurementUnit {
+///     <~enumeration~>
+///     None
+///     Mass
+///     Volume
+///     Other(String)
+/// }
+/// Recipe --o Tag
+/// class Tag {
+///     <~enumeration~>
+///     Defined(String)
+///     Custom(String)
+///     Auto
+/// }
+/// class Ingredient {
+///     -name: String
+///     -alcohol_content: f32
+/// }
+/// Ingredient --o Tag
+///
+/// ```
+/// more text
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Recipe<'a> {
     name: String,

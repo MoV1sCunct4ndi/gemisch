@@ -1,5 +1,4 @@
-use std::ops::Deref;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 use crate::amount::Amount;
 
 pub mod amount;
@@ -43,25 +42,19 @@ pub mod amount;
 /// ```
 /// more text
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Recipe<'a> {
-    name: String,
-    description: String,
-    ingredients: Vec<(IngredientRef<'a>, Amount)>,
-    instructions: Vec<String>,
-    tags: Vec<Tag>,
-}
-
-#[derive(Debug)]
-pub enum IngredientRef<'a> {
-    Ref(&'a Ingredient),
-    Name(String),
+pub struct Recipe {
+    pub name: String,
+    pub description: String,
+    pub ingredients: Vec<(String, Amount)>,
+    pub instructions: Vec<String>,
+    pub tags: Vec<Tag>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Ingredient {
-    name: String,
-    alcohol_content: f32,
-    tags: Vec<Tag>,
+    pub name: String,
+    pub alcohol_content: f32,
+    pub tags: Vec<Tag>,
 }
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
@@ -120,10 +113,10 @@ fn auto_tags_for(ingredients: &[(&Ingredient, Amount)]) -> Vec<Tag> {
     }
 }
 
-impl<'a> Recipe<'a> {
-    pub fn new(name: String,  ingredients: Vec<(&'a Ingredient, Amount)>) -> Self {
+impl Recipe {
+    pub fn new(name: String,  ingredients: Vec<(&Ingredient, Amount)>) -> Self {
         let tags = auto_tags_for(&ingredients);
-        let ingredients = ingredients.into_iter().map(|(i, a)| (IngredientRef::Ref(i), a)).collect();
+        let ingredients = ingredients.into_iter().map(|(i, a)|(i.name.clone(), a)).collect();
         Self {
             name,
             description: String::new(),
@@ -131,21 +124,5 @@ impl<'a> Recipe<'a> {
             instructions: Vec::new(),
             tags,
         }
-    }
-}
-
-impl Serialize for IngredientRef<'_> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
-        match self {
-            IngredientRef::Ref(ingredient) => serializer.serialize_str(&ingredient.name),
-            IngredientRef::Name(name) => serializer.serialize_str(&name),
-        }
-    }
-}
-
-impl<'de> Deserialize<'de> for IngredientRef<'_> {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
-        let name = String::deserialize(deserializer)?;
-        Ok(IngredientRef::Name(name))
     }
 }
